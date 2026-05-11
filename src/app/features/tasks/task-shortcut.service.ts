@@ -153,6 +153,11 @@ export class TaskShortcutService {
       ev.preventDefault();
       return true;
     }
+    if (checkKeyCombo(ev, keys.taskFocusNotes)) {
+      this._handleTaskShortcut(focusedTaskId, 'showDetailPanelNotes');
+      ev.preventDefault();
+      return true;
+    }
     if (checkKeyCombo(ev, keys.taskOpenEstimationDialog)) {
       this._handleTaskShortcut(focusedTaskId, 'estimateTime');
       ev.preventDefault();

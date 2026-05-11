@@ -134,6 +134,7 @@ export class TaskDetailPanelComponent implements OnInit, AfterViewInit, OnDestro
   // View children
   itemEls = viewChildren(TaskDetailItemComponent);
   attachmentPanelElRef = viewChild<TaskDetailItemComponent>('attachmentPanelElRef');
+  notePanelElRef = viewChild<TaskDetailItemComponent>('noteWrapperElRef');
 
   // Constants
   IS_TOUCH_PRIMARY = IS_TOUCH_PRIMARY;
@@ -454,6 +455,14 @@ export class TaskDetailPanelComponent implements OnInit, AfterViewInit, OnDestro
             } else {
               this.focusItem(attachmentPanelElRef);
             }
+          } else if (v === TaskDetailTargetPanel.Notes) {
+            const notePanelElRef = this.notePanelElRef();
+            if (notePanelElRef) {
+              this.focusItem(notePanelElRef);
+            }
+            window.setTimeout(() => {
+              this.panelState.isFocusNotes.set(true);
+            }, 200);
           } else {
             this._focusFirst();
           }

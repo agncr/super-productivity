@@ -320,6 +320,13 @@ export const KEYBOARD_SETTINGS_FORM_CFG: ConfigFormSection<KeyboardConfig> = {
       },
     },
     {
+      key: 'taskFocusNotes',
+      type: 'keyboard',
+      templateOptions: {
+        label: T.GCF.KEYBOARD.TASK_FOCUS_NOTES,
+      },
+    },
+    {
       key: 'selectPreviousTask',
       type: 'keyboard',
       templateOptions: {
