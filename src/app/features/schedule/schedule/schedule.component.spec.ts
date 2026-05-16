@@ -283,27 +283,20 @@ describe('ScheduleComponent', () => {
   });
 
   describe('goToPreviousPeriod', () => {
-    it('should navigate backward by the number of days currently shown', () => {
+    it('should navigate backward by 7 days in week view', () => {
       // Arrange - view a future range that doesn't contain today
-      mockScheduleService.getDaysToShow.and.returnValue([
-        '2027-06-14',
-        '2027-06-15',
-        '2027-06-16',
-      ]);
+      mockLayoutService.selectedTimeView.set('week');
       const startDate = new Date(2027, 5, 15); // Jun 15, 2027
       component['_selectedDate'].set(startDate);
       fixture.detectChanges();
 
-      // Get the actual number of days being shown (mock-controlled)
-      const daysShown = component.daysToShow().length;
-
       // Act
       component.goToPreviousPeriod();
 
-      // Assert
+      // Assert — week view always jumps 7 days
       const newDate = component['_selectedDate']();
       const expectedDate = new Date(startDate);
-      expectedDate.setDate(startDate.getDate() - daysShown);
+      expectedDate.setDate(startDate.getDate() - 7);
 
       expect(newDate?.getDate()).toBe(expectedDate.getDate());
       expect(newDate?.getHours()).toBe(0); // Normalized to midnight
@@ -352,35 +345,51 @@ describe('ScheduleComponent', () => {
   });
 
   describe('goToNextPeriod', () => {
-    it('should navigate forward by the number of days currently shown', () => {
+    it('should navigate forward by 7 days in week view', () => {
       // Arrange
+      mockLayoutService.selectedTimeView.set('week');
       const startDate = new Date(2026, 0, 20); // Jan 20, 2026
       component['_selectedDate'].set(startDate);
-
-      // Get the actual number of days being shown (depends on test window size)
-      const daysShown = component.daysToShow().length;
 
       // Act
       component.goToNextPeriod();
 
-      // Assert
+      // Assert — week view always jumps 7 days
       const newDate = component['_selectedDate']();
       const expectedDate = new Date(startDate);
-      expectedDate.setDate(startDate.getDate() + daysShown);
+      expectedDate.setDate(startDate.getDate() + 7);
 
       expect(newDate?.getDate()).toBe(expectedDate.getDate());
       expect(newDate?.getHours()).toBe(0); // Normalized to midnight
     });
 
-    it('should navigate forward from today by the number of days shown', () => {
+    it('should navigate forward by 3 days in threeDays view', () => {
       // Arrange
+      mockLayoutService.selectedTimeView.set('threeDays');
+      const startDate = new Date(2026, 0, 20); // Jan 20, 2026
+      component['_selectedDate'].set(startDate);
+
+      // Act
+      component.goToNextPeriod();
+
+      // Assert — threeDays view always jumps 3 days
+      const newDate = component['_selectedDate']();
+      const expectedDate = new Date(startDate);
+      expectedDate.setDate(startDate.getDate() + 3);
+
+      expect(newDate?.getDate()).toBe(expectedDate.getDate());
+      expect(newDate?.getHours()).toBe(0);
+    });
+
+    it('should navigate forward from today by 7 days in week view', () => {
+      // Arrange
+      mockLayoutService.selectedTimeView.set('week');
       component['_selectedDate'].set(null);
       const startDate = new Date();
-      const daysShown = component.daysToShow().length;
 
-      // Calculate expected date (today + daysShown)
+      // Calculate expected date (today + 7)
       const expectedDate = new Date(startDate);
-      expectedDate.setDate(startDate.getDate() + daysShown);
+      expectedDate.setDate(startDate.getDate() + 7);
 
       // Act
       component.goToNextPeriod();
