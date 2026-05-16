@@ -360,6 +360,8 @@ describe('Planner Selectors - selectPlannerDays', () => {
     isLunchBreakEnabled: false,
     lunchBreakStart: '12:00',
     lunchBreakEnd: '13:00',
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    workDays: { 0: false, 1: true, 2: true, 3: true, 4: true, 5: true, 6: false },
   };
 
   // The factory returns a selector; test its projector directly
