@@ -213,6 +213,7 @@ export type ScheduleConfig = Readonly<{
   isLunchBreakEnabled: boolean;
   lunchBreakStart: string;
   lunchBreakEnd: string;
+  workDays: Record<number, boolean>;
 }>;
 
 export type ReminderConfig = Readonly<{

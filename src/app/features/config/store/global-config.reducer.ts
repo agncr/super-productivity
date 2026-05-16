@@ -260,6 +260,10 @@ export const globalConfigReducer = createReducer<GlobalConfigState>(
         ...DEFAULT_GLOBAL_CONFIG.focusMode,
         ...migrateFocusModeConfig(appDataComplete.globalConfig.focusMode),
       },
+      schedule: {
+        ...DEFAULT_GLOBAL_CONFIG.schedule,
+        ...appDataComplete.globalConfig.schedule,
+      },
       keyboard: migrateKeyboardConfig(appDataComplete.globalConfig.keyboard),
       sync: {
         ...incomingSyncConfig,

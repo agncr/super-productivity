@@ -43,6 +43,8 @@ import { DEFAULT_FIRST_DAY_OF_WEEK } from '../../../core/locale.constants';
 import { DateTimeFormatService } from '../../../core/date-time-format/date-time-format.service';
 import { getWeekNumber } from '../../../util/get-week-number';
 import { parseDbDateStr } from '../../../util/parse-db-date-str';
+import { ScheduleViewMode } from '../schedule.model';
+import { DEFAULT_GLOBAL_CONFIG } from '../../config/default-global-config.const';
 
 @Component({
   selector: 'schedule',
@@ -101,8 +103,28 @@ export class ScheduleComponent {
     this._hiddenCalendarProviders.toggle(providerId);
   }
 
+  readonly viewModeOptions: { mode: ScheduleViewMode; icon: string; labelKey: string }[] =
+    [
+      { mode: 'threeDays', icon: 'view_column', labelKey: T.F.SCHEDULE.VIEW_THREE_DAYS },
+      { mode: 'workWeek', icon: 'view_week', labelKey: T.F.SCHEDULE.VIEW_WORK_WEEK },
+      { mode: 'week', icon: 'view_week', labelKey: T.F.SCHEDULE.VIEW_WEEK },
+      { mode: 'month', icon: 'calendar_month', labelKey: T.F.SCHEDULE.VIEW_MONTH },
+    ];
+
   private _currentTimeViewMode = computed(() => this.layoutService.selectedTimeView());
   isMonthView = computed(() => this._currentTimeViewMode() === 'month');
+
+  readonly currentViewIcon = computed(() => {
+    switch (this._currentTimeViewMode()) {
+      case 'threeDays':
+        return 'view_column';
+      case 'workWeek':
+      case 'week':
+        return 'view_week';
+      case 'month':
+        return 'calendar_month';
+    }
+  });
 
   // Navigation state - null = viewing today, Date = viewing selected date
   private _selectedDate = signal<Date | null>(null);
@@ -135,6 +157,11 @@ export class ScheduleComponent {
     return this._windowSize().width < SCHEDULE_CONSTANTS.HORIZONTAL_SCROLL_THRESHOLD;
   });
 
+  private _workDays = computed(() => {
+    const cfg = this._globalConfigService.timelineCfg();
+    return cfg?.workDays ?? DEFAULT_GLOBAL_CONFIG.schedule.workDays;
+  });
+
   private _daysToShowCount = computed(() => {
     const size = this._windowSize();
     const selectedView = this._currentTimeViewMode();
@@ -158,6 +185,15 @@ export class ScheduleComponent {
       }
     }
 
+    if (selectedView === 'threeDays') {
+      return 3;
+    }
+
+    if (selectedView === 'workWeek') {
+      const count = Object.values(this._workDays()).filter(Boolean).length;
+      return count || 5;
+    }
+
     // Week view: always 7 days
     return 7;
   });
@@ -172,6 +208,13 @@ export class ScheduleComponent {
     if (selectedView === 'month') {
       return this.scheduleService.getMonthDaysToShow(
         count,
+        this.firstDayOfWeek(),
+        selectedDate,
+      );
+    }
+    if (selectedView === 'workWeek') {
+      return this.scheduleService.getWorkWeekDaysToShow(
+        this._workDays(),
         this.firstDayOfWeek(),
         selectedDate,
       );
@@ -194,21 +237,29 @@ export class ScheduleComponent {
     const days = this.daysToShow();
     if (!days.length) return '';
     const locale = this._dateTimeFormatService.currentLocale();
+    const selectedView = this._currentTimeViewMode();
 
-    if (this.isMonthView()) {
+    if (selectedView === 'month') {
       const mid = parseDbDateStr(days[Math.floor(days.length / 2)]);
       return safeFormatDate(mid, 'LLLL yyyy', locale);
     }
 
     const start = parseDbDateStr(days[0]);
     const end = parseDbDateStr(days[days.length - 1]);
-    const weekNr = getWeekNumber(start); // ISO — default firstDayOfWeek=1
     const sameMonth =
       start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear();
     const startStr = safeFormatDate(start, 'MMM d', locale);
     const endStr = sameMonth
       ? safeFormatDate(end, 'd', locale)
       : safeFormatDate(end, 'MMM d', locale);
+
+    if (selectedView === 'threeDays' || selectedView === 'workWeek') {
+      if (this._isVeryCompact()) return startStr;
+      return `${startStr} – ${endStr}`;
+    }
+
+    // week view: show week number + date range
+    const weekNr = getWeekNumber(start); // ISO — default firstDayOfWeek=1
     const labelKey = this._isCompact()
       ? T.F.WORKLOG.CMP.WEEK_NR_SHORT
       : T.F.WORKLOG.CMP.WEEK_NR;
@@ -300,7 +351,7 @@ export class ScheduleComponent {
       );
       this._selectedDate.set(previousMonth);
     } else {
-      const daysToSkip = this.daysToShow().length;
+      const daysToSkip = selectedView === 'threeDays' ? 3 : 7;
       const previousPeriod = new Date(currentDate);
       previousPeriod.setDate(currentDate.getDate() - daysToSkip);
       previousPeriod.setHours(0, 0, 0, 0);
@@ -329,9 +380,7 @@ export class ScheduleComponent {
       );
       this._selectedDate.set(nextMonth);
     } else {
-      // Week view: move forward by the number of days currently shown
-      // (automatically adapts to responsive day count: 2, 3, 5, or 7 days)
-      const daysToSkip = this.daysToShow().length;
+      const daysToSkip = selectedView === 'threeDays' ? 3 : 7;
       const nextPeriod = new Date(currentDate);
       nextPeriod.setDate(currentDate.getDate() + daysToSkip);
       nextPeriod.setHours(0, 0, 0, 0);
@@ -386,14 +435,22 @@ export class ScheduleComponent {
     });
   }
 
-  selectTimeView(view: 'week' | 'month'): void {
+  selectTimeView(view: ScheduleViewMode): void {
     this.layoutService.selectedTimeView.set(view);
     localStorage.setItem(LS.SELECTED_TIME_VIEW, view);
+    this._selectedDate.set(null);
   }
 
-  private getTimeView(): 'week' | 'month' {
+  private getTimeView(): ScheduleViewMode {
     const preservedView = localStorage.getItem(LS.SELECTED_TIME_VIEW);
-    return preservedView === 'month' ? 'month' : 'week';
+    if (
+      preservedView === 'month' ||
+      preservedView === 'threeDays' ||
+      preservedView === 'workWeek'
+    ) {
+      return preservedView;
+    }
+    return 'week';
   }
 
   constructor() {

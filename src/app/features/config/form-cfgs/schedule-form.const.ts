@@ -81,5 +81,21 @@ export const SCHEDULE_FORM_CFG: ConfigFormSection<ScheduleConfig> = {
         },
       },
     },
+    {
+      key: 'workDays',
+      type: 'multicheckbox',
+      templateOptions: {
+        label: T.GCF.SCHEDULE.L_WORK_DAYS,
+        options: [
+          { label: T.F.TASK_REPEAT.F.MONDAY, value: 1 },
+          { label: T.F.TASK_REPEAT.F.TUESDAY, value: 2 },
+          { label: T.F.TASK_REPEAT.F.WEDNESDAY, value: 3 },
+          { label: T.F.TASK_REPEAT.F.THURSDAY, value: 4 },
+          { label: T.F.TASK_REPEAT.F.FRIDAY, value: 5 },
+          { label: T.F.TASK_REPEAT.F.SATURDAY, value: 6 },
+          { label: T.F.TASK_REPEAT.F.SUNDAY, value: 0 },
+        ],
+      },
+    },
   ],
 };

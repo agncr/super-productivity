@@ -3,6 +3,8 @@ import { TaskCopy, TaskWithDueTime } from '../tasks/task.model';
 import { TaskRepeatCfg } from '../task-repeat-cfg/task-repeat-cfg.model';
 import { CalendarIntegrationEvent } from '../calendar-integration/calendar-integration.model';
 
+export type ScheduleViewMode = 'threeDays' | 'workWeek' | 'week' | 'month';
+
 export interface ScheduleEvent {
   id: string;
   type: SVEType;

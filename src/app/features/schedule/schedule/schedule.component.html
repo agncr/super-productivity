@@ -1,27 +1,30 @@
 <div class="schedule-nav-controls">
-  <div class="week-month-selector">
+  <div class="view-switcher">
     <button
       mat-icon-button
-      class="week-month-btn"
-      [class.active]="!isMonthView()"
-      [attr.aria-pressed]="!isMonthView()"
-      (click)="selectTimeView('week')"
-      [matTooltip]="T.F.SCHEDULE.VIEW_WEEK | translate"
-      [attr.aria-label]="T.F.SCHEDULE.VIEW_WEEK | translate"
+      class="view-switcher-btn"
+      [matMenuTriggerFor]="viewMenu"
     >
-      <mat-icon>view_week</mat-icon>
+      <mat-icon>{{ currentViewIcon() }}</mat-icon>
+      <mat-icon class="dropdown-arrow">arrow_drop_down</mat-icon>
     </button>
-    <button
-      mat-icon-button
-      class="week-month-btn"
-      [class.active]="isMonthView()"
-      [attr.aria-pressed]="isMonthView()"
-      (click)="selectTimeView('month')"
-      [matTooltip]="T.F.SCHEDULE.VIEW_MONTH | translate"
-      [attr.aria-label]="T.F.SCHEDULE.VIEW_MONTH | translate"
-    >
-      <mat-icon>calendar_month</mat-icon>
-    </button>
+    <mat-menu #viewMenu="matMenu">
+      <ng-template matMenuContent>
+        @for (opt of viewModeOptions; track opt.mode) {
+          <button
+            mat-menu-item
+            (click)="selectTimeView(opt.mode)"
+            [class.active-view]="layoutService.selectedTimeView() === opt.mode"
+          >
+            <mat-icon>{{ opt.icon }}</mat-icon>
+            <span>{{ opt.labelKey | translate }}</span>
+            @if (layoutService.selectedTimeView() === opt.mode) {
+              <mat-icon class="check-icon">check</mat-icon>
+            }
+          </button>
+        }
+      </ng-template>
+    </mat-menu>
   </div>
 
   @if (showCalFilterBtn()) {

@@ -14,7 +14,8 @@ import { HiddenCalendarProvidersService } from '../../calendar-integration/hidde
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { SCHEDULE_CONSTANTS } from '../schedule.constants';
 import { GlobalConfigService } from '../../config/global-config.service';
-import { ScheduleDay } from '../schedule.model';
+import { ScheduleDay, ScheduleViewMode } from '../schedule.model';
+import { DEFAULT_GLOBAL_CONFIG } from '../../config/default-global-config.const';
 import { CalendarEventActionsService } from '../../calendar-integration/calendar-event-actions.service';
 
 describe('ScheduleComponent', () => {
@@ -33,12 +34,13 @@ describe('ScheduleComponent', () => {
     (mockTaskService as any).currentTaskId = signal(null);
 
     mockLayoutService = jasmine.createSpyObj('LayoutService', [], {
-      selectedTimeView: signal('week'),
+      selectedTimeView: signal<ScheduleViewMode>('week'),
     });
 
     mockScheduleService = jasmine.createSpyObj('ScheduleService', [
       'getDaysToShow',
       'getMonthDaysToShow',
+      'getWorkWeekDaysToShow',
       'buildScheduleDays',
       'scheduleRefreshTick',
       'getTodayStr',
@@ -56,6 +58,13 @@ describe('ScheduleComponent', () => {
       '2026-01-01',
       '2026-01-02',
       '2026-01-03',
+    ]);
+    mockScheduleService.getWorkWeekDaysToShow.and.returnValue([
+      '2026-01-20',
+      '2026-01-21',
+      '2026-01-22',
+      '2026-01-23',
+      '2026-01-24',
     ]);
     mockScheduleService.buildScheduleDays.and.returnValue([]);
     mockScheduleService.getTodayStr.and.callFake((timestamp?: number | Date) => {
@@ -93,6 +102,7 @@ describe('ScheduleComponent', () => {
     mockGlobalConfigService = jasmine.createSpyObj('GlobalConfigService', [], {
       localization: signal({ firstDayOfWeek: 1 }),
       cfg: signal(undefined),
+      timelineCfg: signal(DEFAULT_GLOBAL_CONFIG.schedule),
     });
 
     await TestBed.configureTestingModule({

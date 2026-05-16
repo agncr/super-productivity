@@ -1,4 +1,5 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
+import { ScheduleViewMode } from '../../features/schedule/schedule.model';
 import {
   hideAddTaskBar,
   hideIssuePanel,
@@ -57,7 +58,7 @@ export class LayoutService {
     select(selectIsShowIssuePanel),
   );
 
-  readonly selectedTimeView = signal<'week' | 'month'>('week');
+  readonly selectedTimeView = signal<ScheduleViewMode>('week');
   readonly isWorkViewScrolled = signal<boolean>(false);
   readonly isShowAddTaskBar = toSignal(this.isShowAddTaskBar$, { initialValue: false });
 

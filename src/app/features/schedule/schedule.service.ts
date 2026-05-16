@@ -190,6 +190,41 @@ export class ScheduleService {
     return daysToShow;
   }
 
+  getWorkWeekDaysToShow(
+    workDays: Record<number, boolean>,
+    firstDayOfWeek: number = 1,
+    referenceDate: Date | null = null,
+  ): string[] {
+    const ref = referenceDate || new Date();
+    // Find the start of the current calendar week
+    const weekStart = new Date(ref);
+    const refDay = ref.getDay();
+    const daysFromWeekStart = (refDay - firstDayOfWeek + 7) % 7;
+    weekStart.setDate(ref.getDate() - daysFromWeekStart);
+    weekStart.setHours(0, 0, 0, 0);
+
+    const days: string[] = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(weekStart);
+      d.setDate(weekStart.getDate() + i);
+      if (workDays[d.getDay()]) {
+        days.push(this._dateService.todayStr(d.getTime()));
+      }
+    }
+    // Fallback to Mon-Fri if no work days configured
+    if (days.length === 0) {
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(weekStart);
+        d.setDate(weekStart.getDate() + i);
+        const dayIndex = d.getDay();
+        if (dayIndex >= 1 && dayIndex <= 5) {
+          days.push(this._dateService.todayStr(d.getTime()));
+        }
+      }
+    }
+    return days;
+  }
+
   getEventDayStr(ev: ScheduleEvent): string | null {
     // Calendar events
     if (isCalendarEventData(ev)) {

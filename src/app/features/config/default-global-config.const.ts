@@ -204,6 +204,8 @@ export const DEFAULT_GLOBAL_CONFIG: GlobalConfigState = {
     isLunchBreakEnabled: false,
     lunchBreakStart: '13:00',
     lunchBreakEnd: '14:00',
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    workDays: { 0: false, 1: true, 2: true, 3: true, 4: true, 5: true, 6: false },
   },
 
   sync: {
