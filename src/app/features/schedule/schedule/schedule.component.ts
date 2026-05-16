@@ -105,10 +105,10 @@ export class ScheduleComponent {
 
   readonly viewModeOptions: { mode: ScheduleViewMode; icon: string; labelKey: string }[] =
     [
-      { mode: 'threeDays', icon: 'view_column', labelKey: T.F.SCHEDULE.VIEW_THREE_DAYS },
-      { mode: 'workWeek', icon: 'view_week', labelKey: T.F.SCHEDULE.VIEW_WORK_WEEK },
-      { mode: 'week', icon: 'view_week', labelKey: T.F.SCHEDULE.VIEW_WEEK },
-      { mode: 'month', icon: 'calendar_month', labelKey: T.F.SCHEDULE.VIEW_MONTH },
+      { mode: 'threeDays', icon: 'view_column', labelKey: T.F.SCHEDULE.THREE_DAYS },
+      { mode: 'workWeek', icon: 'view_week', labelKey: T.F.SCHEDULE.WORK_WEEK },
+      { mode: 'week', icon: 'view_week', labelKey: T.F.SCHEDULE.WEEK },
+      { mode: 'month', icon: 'calendar_month', labelKey: T.F.SCHEDULE.MONTH },
     ];
 
   private _currentTimeViewMode = computed(() => this.layoutService.selectedTimeView());
