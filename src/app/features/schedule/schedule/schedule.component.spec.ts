@@ -286,6 +286,15 @@ describe('ScheduleComponent', () => {
     it('should navigate backward by 7 days in week view', () => {
       // Arrange - view a future range that doesn't contain today
       mockLayoutService.selectedTimeView.set('week');
+      mockScheduleService.getDaysToShow.and.returnValue([
+        '2027-06-13',
+        '2027-06-14',
+        '2027-06-15',
+        '2027-06-16',
+        '2027-06-17',
+        '2027-06-18',
+        '2027-06-19',
+      ]);
       const startDate = new Date(2027, 5, 15); // Jun 15, 2027
       component['_selectedDate'].set(startDate);
       fixture.detectChanges();
